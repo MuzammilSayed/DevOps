@@ -1,0 +1,115 @@
+cpuload.sh
+
+#!/bin/bash
+# monitor server CPULOAD Info And Send Alert Mail
+# MAKER: Muzammil Sayed
+
+PATHS="/"
+HOSTNAME=$(hostname)
+CRITICAL=98
+WARNING=90
+CRITICALMail="sayedmuzammil098@gmail.com"
+WARNINGMail="msayed0330@gmail.com"
+mkdir -p /var/log/cpuinfo
+LOGFILE=/var/log/cpuinfo/cpusage-`date +%d-%h-%y`.log
+touch $LOGFILE
+
+for path in $PATHS
+do
+CPULOAD=`top -b -n 2 -d1 |grep "Cpu(s)" |tail -n1 |awk '{print $2}' |awk -F . '{print $1}'`
+if [ -n $WARNING -a -n $CRITICAL ]; then
+if [ "$CPULOAD" -ge "$WARNING" -a "$CPULOAD" -lt "$CRITICAL" ]; then
+echo " `date "+%F %H:%M:%S"` WARNING - CPULOAD = $CPULOAD "%" on Host $HOSTNAME " >> $LOGFILE
+echo " WARNING - CPULOAD = $CPULOAD on Host $HOSTNAME " | mail -s "CPULOAD WARNING" $WARNINGMail
+exit 1
+elif [ "$CPULOAD" -ge "$CRITICAL" ]; then
+echo "`date "+%F %H:%M:%S"` CRITICAL - CPULOAD = $CPULOAD "%" on Host $HOSTNAME " >> $LOGFILE
+echo " CRITICAL - CPULOAD = $CPULOAD on Host $HOSTNAME " | mail -s "CPULOAD Is CRITICAL" $CRITICALMail
+exit 2
+else
+echo "`date "+%F %H:%M:%S"` CPULOAD Is Healthy $CPULOAD "%" on Host $HOSTNAME" >> $LOGFILE
+exit 0
+fi
+fi
+done
+------------------
+memload.sh
+
+#!/bin/bash
+# Mointor Memory Load On Server And Send Alert
+# MAKER: Muzammil Sayed
+
+PATHS="/"
+HOSTNAME=$(hostname)
+CRITICAL=98
+WARNING=90
+CRITICALMail="sayedmuzammil098@gmail.com"
+WARNINGMail="msayed0330@gmail.com"
+mkdir -p /var/log/cpuinfo
+LOGFILE=/var/log/cpuinfo/cpusage-`date +%d-%h-%y`.log
+touch $LOGFILE
+
+for path in $PATHS
+do
+MEMLOAD=`free |grep Mem |awk '{print int( $3/$2 * 100.0);}'`
+if [ -n $WARNING -a -n $CRITICAL ]; then
+if [ "$MEMLOAD" -ge "$WARNING" -a "$MEMLOAD" -lt "$CRITICAL" ]; then
+echo " `date "+%F %H:%M:%S"` WARNING - MEMLOAD = $MEMLOAD "%" on Host $HOSTNAME " >> $LOGFILE
+echo " WARNING - MEMLOAD = $MEMLOAD on Host $HOSTNAME " | mail -s "MEMLOAD WARNING" $WARNINGMail
+exit 1
+elif [ "$MEMLOAD" -ge "$CRITICAL" ]; then
+echo "`date "+%F %H:%M:%S"` CRITICAL - MEMLOAD = $MEMLOAD "%" on Host $HOSTNAME " >> $LOGFILE
+echo " CRITICAL - MEMLOAD = $MEMLOAD on Host $HOSTNAME " | mail -s "MEMLOAD Is CRITICAL" $CRITICALMail
+exit 2
+else
+echo "`date "+%F %H:%M:%S"` MEMLOAD Is Healthy $MEMLOAD "%" on Host $HOSTNAME" >> $LOGFILE
+exit 0
+fi
+fi
+done
+------------------------
+diskload.sh
+
+#!/bin/bash
+# Monitor DiskLoad On Server And Send Alert
+# MAKER: Muzammil Sayed
+
+PATHS="/"
+HOSTNAME=$(hostname)
+CRITICAL=98
+WARNING=90
+CRITICALMail="sayedmuzammil098@gmail.com"
+WARNINGMail="msayed0330@gmail.com"
+mkdir -p /var/log/cpuinfo
+LOGFILE=/var/log/cpuinfo/cpusage-`date +%d-%h-%y`.log
+touch $LOGFILE
+
+for path in $PATHS
+do
+DISKLOAD=`df -P |column -t |awk '{print $5}' |tail -n 1 | sed 's/%//g'`
+if [ -n $WARNING -a -n $CRITICAL ]; then
+if [ "$DISKLOAD" -ge "$WARNING" -a "$DISKLOAD" -lt "$CRITICAL" ]; then
+echo " `date "+%F %H:%M:%S"` WARNING - DISKLOAD = $DISKLOAD "%" on Host $HOSTNAME " >> $LOGFILE
+echo " WARNING - DISKLOAD = $DISKLOAD on Host $HOSTNAME " | mail -s "DISKLOAD WARNING" $WARNINGMail
+exit 1
+elif [ "$DISKLOAD" -ge "$CRITICAL" ]; then
+echo "`date "+%F %H:%M:%S"` CRITICAL - DISKLOAD = $DISKLOAD "%" on Host $HOSTNAME " >> $LOGFILE
+echo " CRITICAL - DISKLOAD = $DISKLOAD on Host $HOSTNAME " | mail -s "DISKLOAD Is CRITICAL" $CRITICALMail
+exit 2
+else
+echo "`date "+%F %H:%M:%S"` DISKLOAD Is Healthy $DISKLOAD "%" on Host $HOSTNAME" >> $LOGFILE
+exit 0
+fi
+fi
+done
+
+--------------------------
+master.sh
+
+#!/bin/bash
+# THIS IS MASTER FILE ,IT WILL EXECUTE GIVEN SHELL SCRIPTS IN RESPECTIVE ORDER
+# MAKER: Muzammil Sayed
+
+sh /scripts/cpuload.sh
+sh /scripts/memload.sh
+sh /scripts/diskload.sh
